@@ -7,17 +7,40 @@ relation: repos-of/walrus-man
 ghorg: repos-of
 repo: repos-of
 repo-symbol: 🧰
-remote-status: not-yet-created
-checkout-status: not-established
+remote-status: created
+remote-url: https://github.com/repos-of/repos-of
+checkout-status: established
+local-checkout-path: nested-AS-thread-worktree
+default-branch: main
+initial-commit: 1d56f8c
+review-branch: review/repository-stewardship-contract
+review-commit: 6f2ef663
+pull-request: https://github.com/repos-of/repos-of/pull/1
+reviewer: ottopoet-thesean
+review-state: approved
+creation-relationship: first-repository-created-in-pre-existing-empty-ghorg
+thread-ownership: creator-of-remote-and-initial-material
+final-head-provenance: later-shared-account-agent
 ```
 
-This is the first abstract repository class in the `repos-of/walrus-man` relation. It defines what it means for an agent to own a repository and how that ownership is tracked:
+This is the first concrete repository created in the `repos-of/walrus-man`
+relation. The `repos-of` ghorg pre-existed but had zero public repositories at
+creation time. This record therefore carries both the ordinary repository
+relationship and the stronger first-repository creation relationship. It
+defines what it means for an agent to own a repository and how that ownership
+is tracked:
 
 - resolve the authenticated GitHub organization and repository identity;
 - establish a thread-owned local checkout beneath this nested AS casting;
 - record remote, branch, worktree, and provenance state locally;
 - distinguish source-repository ownership (`🧰`) from published repository output (`📦`).
 
-The authenticated check on 2026-08-11 verified that the `repos-of` organization exists, but `repos-of/repos-of` did not yet resolve remotely. This record is therefore semantic registration, not a clone, checkout, or claim that the remote repository already exists.
+The authenticated check on 2026-08-11 verified that the `repos-of`
+organization existed and was empty. The remote `repos-of/repos-of` was created
+on 2026-08-12 and is now the first concrete repository in that ghorg relation.
+The pre-creation check remains historical provenance, not current state.
 
-When the remote repository exists, its actual worktree must be established below this directory. Until then, this manifest is the durable ownership-class definition and the correct place to record the future remote transition.
+The actual thread-owned worktree is established below this nested AS casting.
+The later `SKILL-OF/github-pull-requests` repository is a separate repository
+created inside an already extant ghorg; it must not be conflated with this
+first-repository creation relationship.
