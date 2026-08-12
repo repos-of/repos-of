@@ -59,6 +59,10 @@ while ($true) {
         Save-Event 'REVIEW_REQUESTED' $snapshot
     } elseif ($null -eq $previous -or ($snapshot | ConvertTo-Json -Depth 8 -Compress) -ne ($previous.snapshot | ConvertTo-Json -Depth 8 -Compress)) {
         Save-Event 'PR_CHANGED' $snapshot
+        if ($null -ne $previous) {
+            Write-Output "REPOSITORY_LIFECYCLE_TRIGGERED: $Repository#$PullRequest"
+            break
+        }
     } else {
         Write-Output "REPOSITORY_LIFECYCLE_WAITING: collaborator=$($snapshot.collaboratorAccepted) reviewRequested=$($snapshot.reviewRequested)"
     }
