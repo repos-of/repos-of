@@ -34,7 +34,6 @@ function Get-Snapshot {
         reviewRequested = $reviewRequested
         state = $pr.state
         headRefOid = $pr.headRefOid
-        updatedAt = $pr.updatedAt
         comments = @($pr.comments | ForEach-Object { "$($_.author.login)|$($_.updatedAt)|$($_.body)" })
         reviews = @($pr.reviews | ForEach-Object { "$($_.author.login)|$($_.submittedAt)|$($_.state)" })
         checks = @($pr.statusCheckRollup | ForEach-Object { "$($_.context)|$($_.state)|$($_.completedAt)" })
