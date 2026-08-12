@@ -1,0 +1,69 @@
+name: Watch repository lifecycle
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY: repos-of/repos-of
+      PULL_REQUEST: "1"
+      REVIEWER: ottopoet-thesean
+    steps:
+      - name: Check collaborator and PR lifecycle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          collaborator_state="pending"
+          if gh api "repos/$REPOSITORY/collaborators/$REVIEWER" >/dev/null 2>&1; then
+            collaborator_state="accepted"
+          fi
+
+          requested="false"
+          if gh api "repos/$REPOSITORY/pulls/$PULL_REQUEST/requested_reviewers" \
+            --jq '.users[].login' | grep -Fxq "$REVIEWER"; then
+            requested="true"
+          fi
+
+          if [[ "$collaborator_state" == "accepted" && "$requested" == "false" ]]; then
+            gh api --method POST "repos/$REPOSITORY/pulls/$PULL_REQUEST/requested_reviewers" \
+              -f "reviewers[]=$REVIEWER" >/dev/null
+            gh pr comment "$PULL_REQUEST" --repo "$REPOSITORY" \
+              --body "Lifecycle watcher: $REVIEWER accepted repository access; the review request has been filed."
+            requested="true"
+          fi
+
+          snapshot=$( {
+            printf 'collaborator=%s\nrequested=%s\n' "$collaborator_state" "$requested"
+            gh api "repos/$REPOSITORY/pulls/$PULL_REQUEST/reviews" \
+              --jq '.[] | [.id, .user.login, .state, .submitted_at] | @tsv'
+            gh api "repos/$REPOSITORY/issues/$PULL_REQUEST/comments" \
+              --jq '.[] | select(.user.login != "github-actions[bot]") | [.id, .user.login, .updated_at, .body] | @tsv'
+            gh api "repos/$REPOSITORY/commits/$(gh pr view "$PULL_REQUEST" --repo "$REPOSITORY" --json headRefOid --jq .headRefOid)/status" \
+              --jq '.statuses[] | [.context, .state, .updated_at, .target_url] | @tsv'
+          } | sha256sum | cut -d' ' -f1 )
+
+          marker="<!-- repository-lifecycle-watch:$snapshot -->"
+          if ! gh api "repos/$REPOSITORY/issues/$PULL_REQUEST/comments" \
+            --jq '.[].body' | grep -Fqx "$marker"; then
+            gh pr comment "$PULL_REQUEST" --repo "$REPOSITORY" --body "$marker
+
+Lifecycle watcher snapshot changed.
+
+- collaborator: $collaborator_state
+- review requested: $requested
+- PR: https://github.com/$REPOSITORY/pull/$PULL_REQUEST
+
+This comment is the durable notification checkpoint for the next watcher run."
+          fi
