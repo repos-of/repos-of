@@ -7,8 +7,16 @@ relation: repos-of/walrus-man
 ghorg: repos-of
 repo: repos-of
 repo-symbol: 🧰
-remote-status: not-yet-created
-checkout-status: not-established
+remote-status: created
+remote-url: https://github.com/repos-of/repos-of
+checkout-status: established
+default-branch: main
+initial-commit: 1d56f8c
+review-branch: review/repository-stewardship-contract
+review-commit: 0693f95
+pull-request: https://github.com/repos-of/repos-of/pull/1
+requested-reviewer: ottopoet-thesean
+reviewer-access: collaborator-invitation-pending
 ```
 
 This is the first abstract repository class in the `repos-of/walrus-man` relation. It defines what it means for an agent to own a repository and how that ownership is tracked:
